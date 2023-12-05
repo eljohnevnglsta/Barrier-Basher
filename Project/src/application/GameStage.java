@@ -26,7 +26,6 @@ public class GameStage {
 	private Image mainMenu = new Image("file:src/images/menu.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image aboutDev = new Image("file:src/images/about.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image howToPlay = new Image("file:src/images/how.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
-	private Image gameProper = new Image("file:src/images/game.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	
 	public GameStage () {
 		this.root = new Group();
@@ -41,6 +40,8 @@ public class GameStage {
 		this.about = new Button();
 		this.how = new Button();
 		this.back = new Button("Go Back");
+		
+		this.gametimer = new GameTimer(this.gc,this.scene);
 
 	}
 	
@@ -70,26 +71,25 @@ public class GameStage {
 		this.stage.setTitle("Barrier Basher");	
 		this.stage.setScene(this.scene);
 		
-		setupMain();
-		
-		//invoke the start method of the animation timer
-		//this.gametimer.start();
+		this.setupMain();
+		this.mainMenu();
 	}
 	
 	public void mainMenu() {
 		this.stage.show();
 		this.play.setOnMouseClicked(event -> {
-			switchScene(gameProper);
+			this.clearScene();
+			this.gametimer.start();
 		});
 		this.about.setOnMouseClicked(event -> {
-			switchScene(aboutDev);
+			this.switchScene(aboutDev);
 		});
 		this.how.setOnMouseClicked(event -> {
 			switchScene(howToPlay);
 		});
 		this.back.setOnMouseClicked(event -> {
-			clearScene();
-			setupMain();
+			this.clearScene();
+			this.setupMain();
 		});
 	}
 	
