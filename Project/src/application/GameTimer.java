@@ -1,5 +1,8 @@
 package application;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -14,14 +17,23 @@ public class GameTimer extends AnimationTimer{
 	private Background bg;
 	private double backgroundY;
 	private Character myCharacter;
-	private final int speed = 1; 
+	private ArrayList<Walls> walls;
+	private long startSpawn;
+	
+	public final static int WALLS_INITIAL_YPOS = -100;
+	public final static int WIDTH_PER_WALLS = 125;
+	public final static double SPAWN_DELAY = 5;
+	public final static int BG_SPEED = 3; 
 	
 	GameTimer(GraphicsContext gc, Scene theScene){
 		this.gc = gc;
 		this.theScene = theScene;
 		this.myCharacter = new Character("Eljohn",190,600);
+		this.startSpawn = System.nanoTime();
 		
 		this.bg = new Background(0, 0);
+		this.walls = new ArrayList<Walls>();
+		
 		//call method to handle mouse click event
 		this.handleKeyPressEvent();
 		this.setBG();
@@ -31,15 +43,26 @@ public class GameTimer extends AnimationTimer{
 	public void handle(long currentNanoTime) {
 		this.gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
 		this.redrawBackgroundImage();
-		this.bg.moveBG();
-		this.myCharacter.move();
-		this.bg.render(this.gc);
-		this.myCharacter.render(this.gc);
+		this.autoSpawn(currentNanoTime);
 		
+		this.moveSprites();	
+		this.renderSprites();
 	}
 	
+	private void moveSprites() {
+		this.moveWalls();
+		this.bg.moveBG();
+		this.myCharacter.move();
+	}
+	
+	private void renderSprites() {
+		this.bg.render(this.gc);
+		this.renderWalls();
+		this.myCharacter.render(this.gc);
+	}
+
 	private void setBG() {
-		this.bg.setDY(this.speed);
+		this.bg.setDY(GameTimer.BG_SPEED);
 	}
 	
     void redrawBackgroundImage() {
@@ -47,13 +70,13 @@ public class GameTimer extends AnimationTimer{
         this.gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
 
         // redraw background image (moving effect)
-        this.backgroundY += this.speed;
+        this.backgroundY += GameTimer.BG_SPEED;
 
-        this.gc.drawImage(bg.BG_IMAGE, 0, this.backgroundY-this.bg.BG_IMAGE.getHeight() );
-        this.gc.drawImage(bg.BG_IMAGE, 0, this.backgroundY );
+        this.gc.drawImage(Background.BG_IMAGE, 0, this.backgroundY-Background.BG_IMAGE.getHeight() );
+        this.gc.drawImage(Background.BG_IMAGE, 0, this.backgroundY );
         
         if (this.backgroundY >= GameStage.WINDOW_HEIGHT) {
-        	this.backgroundY = GameStage.WINDOW_HEIGHT-this.bg.BG_IMAGE.getHeight();
+        	this.backgroundY = GameStage.WINDOW_HEIGHT-Background.BG_IMAGE.getHeight();
         }
     }
 	
@@ -75,13 +98,13 @@ public class GameTimer extends AnimationTimer{
     }
 	
 	private void moveCharacter(KeyCode ke) {
-		if(ke==KeyCode.UP) this.myCharacter.setDY(-3);                 
+		if(ke==KeyCode.UP) this.myCharacter.setDY(-4);                 
 
-		if(ke==KeyCode.LEFT) this.myCharacter.setDX(-3);
+		if(ke==KeyCode.LEFT) this.myCharacter.setDX(-4);
 
-		if(ke==KeyCode.DOWN) this.myCharacter.setDY(3);
+		if(ke==KeyCode.DOWN) this.myCharacter.setDY(4);
 		
-		if(ke==KeyCode.RIGHT) this.myCharacter.setDX(3);
+		if(ke==KeyCode.RIGHT) this.myCharacter.setDX(4);
 		
 		System.out.println(ke+" key pressed.");
    	}
@@ -92,5 +115,51 @@ public class GameTimer extends AnimationTimer{
 		this.myCharacter.setDY(0);
 	}
 
+	private void moveWalls() {
+		for(int i = 0; i < this.walls.size(); i++){
+			Walls w = this.walls.get(i);
+			if(w.isVisible()){
+				w.move();
+			}
+//			else this.walls.remove(i);
+		}
+	}
+	
+	private void renderWalls() {
+        for (Walls wall : this.walls) {
+        	wall.render(this.gc);
+//        	System.out.println("Wall coordinates: x=" + wall.getX() + ", y=" + wall.getY());
+        }
+	}
+	
+	private void wallsSpawn() {
+	    int yPos = GameTimer.WALLS_INITIAL_YPOS;
+
+	    // Spawn walls at the center
+//	    this.walls.add(new Walls(xPos, yPos));
+
+	    // You can adjust the pattern based on your requirements
+	    // For example, spawn additional walls at specific intervals
+	    // Adjust the pattern based on your desired rhythmic behavior
+
+	    // Example: Spawn a wall every 5 seconds
+	    if ((System.nanoTime() - this.startSpawn) / 1000000000.0 > 5.0) {
+		    this.walls.add(new Walls(0, -5, yPos));
+		    this.walls.add(new Walls(1, 116, yPos));
+		    this.walls.add(new Walls(2, 238, yPos));
+		    this.walls.add(new Walls(3, 360, yPos));
+		    this.startSpawn = System.nanoTime();
+	    }
+	}
+
+	private void autoSpawn(long currentNanoTime) {
+    	double spawnElapsedTime = (currentNanoTime - this.startSpawn) / 1000000000.0;
+        // spawn walls
+        if(spawnElapsedTime > GameTimer.SPAWN_DELAY) {
+        	this.wallsSpawn();
+        	this.startSpawn = System.nanoTime();
+        }
+	}
+	
 	
 }

@@ -12,6 +12,7 @@ public class Main extends Application {
 	public void start(Stage stage){
 		GameStage theGameStage = new GameStage();
 		theGameStage.setStage(stage);
+		//theGameStage.mainMenu();
 	}
 
 }

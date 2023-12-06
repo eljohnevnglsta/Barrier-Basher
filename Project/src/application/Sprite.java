@@ -14,7 +14,7 @@ public abstract class Sprite {
 	public Sprite(int xPos, int yPos){
 		this.x = xPos;
 		this.y = yPos;
-		this.visible = true;
+		this.setVisible(true);
 	}
 	
 	//method to set the object's image
@@ -97,6 +97,8 @@ public abstract class Sprite {
 		this.visible = value;
 	}
 	
-	
+	public void vanish(){
+		this.setVisible(false);
+	}
 
 }
