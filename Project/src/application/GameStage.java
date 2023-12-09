@@ -23,6 +23,8 @@ public class GameStage {
 	private Button about;
 	private Button how;
 	private Button back;
+	private Button backFromGame; 
+	private Image gameover = new Image("file:src/images/gameover.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image mainMenu = new Image("file:src/images/menu.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image aboutDev = new Image("file:src/images/about.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image howToPlay = new Image("file:src/images/how.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
@@ -39,6 +41,7 @@ public class GameStage {
 		this.play = new Button();
 		this.about = new Button();
 		this.how = new Button();
+		this.backFromGame = new Button(); 
 		this.back = new Button("Go Back");
 
 	}
@@ -73,20 +76,33 @@ public class GameStage {
 		this.mainMenu();
 	}
 	
+	public void setupGameOver() {
+		this.gametimer.stop();
+		this.clearScene();
+		this.switchScene(this.gameover);
+		this.root.getChildren().add(this.backFromGame);
+		this.setupButton(this.backFromGame, 300, 100, 90, 515);
+		this.root.getChildren().remove(this.back);
+	}
+	
 	public void mainMenu() {
 		this.stage.show();
 		this.play.setOnMouseClicked(event -> {
 			this.clearScene();
-			this.gametimer = new GameTimer(this.gc,this.scene);
+			this.gametimer = new GameTimer(this,this.gc,this.scene);
 			this.gametimer.start();
 		});
 		this.about.setOnMouseClicked(event -> {
-			this.switchScene(aboutDev);
+			this.switchScene(this.aboutDev);
 		});
 		this.how.setOnMouseClicked(event -> {
-			switchScene(howToPlay);
+			this.switchScene(this.howToPlay);
 		});
 		this.back.setOnMouseClicked(event -> {
+			this.clearScene();
+			this.setupMain();
+		});
+		this.backFromGame.setOnMouseClicked(event -> {
 			this.clearScene();
 			this.setupMain();
 		});

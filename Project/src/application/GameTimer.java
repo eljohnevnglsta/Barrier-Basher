@@ -9,10 +9,12 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
 
 public class GameTimer extends AnimationTimer{
 	
 	private GraphicsContext gc;
+	private GameStage stage; 
 	private Scene theScene;
 	private Background bg;
 	private double backgroundY;
@@ -20,13 +22,16 @@ public class GameTimer extends AnimationTimer{
 	private ArrayList<Walls> walls;
 	private long startSpawn;
 	private boolean disableUP = false;
+	public boolean isGameOver = false; 
 	
+	public final static int CHARACTER_SPEED = 4;
 	public final static int WALLS_INITIAL_YPOS = -100;
 	public final static int WIDTH_PER_WALLS = 125;
-	public final static double SPAWN_DELAY = 10;
-	public static int BG_SPEED = 2; 
+	public final static double SPAWN_DELAY = 5;
+	public static int BG_SPEED = 3; 
 	
-	GameTimer(GraphicsContext gc, Scene theScene){
+	GameTimer(GameStage stage, GraphicsContext gc, Scene theScene){
+		this.stage = stage; 
 		this.gc = gc;
 		this.theScene = theScene;
 		this.myCharacter = new Character("Eljohn",190,600);
@@ -45,22 +50,26 @@ public class GameTimer extends AnimationTimer{
 		this.gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
 		this.redrawBackgroundImage();
 		this.autoSpawn(currentNanoTime);
-		
 		this.moveSprites();	
 		this.renderSprites();
 		this.handleCollisions();
+		if (this.isGameOver) this.stage.setupGameOver();
 	}
 	
 	private void handleCollisions() {
 	    for (Walls wall : walls) {
 	        if (myCharacter.collidesWith(wall)) {
 	        	if (wall.value > 0) {
+	        		if (this.myCharacter.strength < 0) this.isGameOver = true; 
 		        	this.disableUP = true; 
 		        	this.myCharacter.setDY(GameTimer.BG_SPEED);
 	        		this.myCharacter.strength--; 
-		        	wall.value--; 
+		        	wall.value--;
 	        	} else {
+	        		System.out.println("STRENGTH: " + this.myCharacter.strength);
+	        		wall.visible = false;
 	        		this.disableUP = false; 
+	        		this.myCharacter.setDY(0);
 	        		break;
 	        	}
 	        } 
@@ -117,16 +126,14 @@ public class GameTimer extends AnimationTimer{
 	
 	private void moveCharacter(KeyCode ke) {
 		if(!this.disableUP) {
-			if(ke==KeyCode.UP) this.myCharacter.setDY(-4); 
+			if(ke==KeyCode.UP) this.myCharacter.setDY(-1 * GameTimer.CHARACTER_SPEED); 
 		}                
 
-		if(ke==KeyCode.LEFT) this.myCharacter.setDX(-4);
+		if(ke==KeyCode.LEFT) this.myCharacter.setDX(-1 * GameTimer.CHARACTER_SPEED);
 
-		if(ke==KeyCode.DOWN) this.myCharacter.setDY(4);
+		if(ke==KeyCode.DOWN) this.myCharacter.setDY(GameTimer.CHARACTER_SPEED);
 		
-		if(ke==KeyCode.RIGHT) this.myCharacter.setDX(4);
-		
-		System.out.println(ke+" key pressed.");
+		if(ke==KeyCode.RIGHT) this.myCharacter.setDX(GameTimer.CHARACTER_SPEED);
    	}
 	
 	//method that will stop the ship's movement; set the ship's DX and DY to 0
@@ -138,10 +145,10 @@ public class GameTimer extends AnimationTimer{
 	private void moveWalls() {
 		for(int i = 0; i < this.walls.size(); i++){
 			Walls w = this.walls.get(i);
-			if(w.isVisible()){
+			if (w.isVisible()){
 				w.move();
 			}
-//			else this.walls.remove(i);
+			else this.walls.remove(i);
 		}
 	}
 	
