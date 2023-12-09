@@ -5,7 +5,7 @@ import javafx.scene.image.Image;
 
 public class Character extends Sprite{
 	private String name;
-	private int strength;
+	int strength;
 	private boolean alive;
 	
 	public final static Image CHAR_IMAGE = new Image("file:src//images/ej.png",Character.CHAR_SIZE,Character.CHAR_SIZE,false,false);
@@ -14,7 +14,7 @@ public class Character extends Sprite{
 	public Character(String name, int x, int y){
 		super(x,y);
 		this.name = name;
-		this.strength = 1;
+		this.strength = 10;
 		this.alive = true;
 		
 		this.loadImage(Character.CHAR_IMAGE);
@@ -36,6 +36,14 @@ public class Character extends Sprite{
 	public void move() {
     	this.x += this.dx;
     	this.y += this.dy;
+	}
+
+	public int getStrength() {
+		return strength;
+	}
+
+	public void setStrength(int strength) {
+		this.strength = strength;
 	}
 
 }

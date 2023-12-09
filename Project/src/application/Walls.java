@@ -5,7 +5,7 @@ import java.util.Random;
 import javafx.scene.image.Image;
 
 public class Walls extends Sprite{
-	private int value;
+	int value;
 	private final static double WALLS_SPEED = GameTimer.BG_SPEED;
 	private final static Image WALLS_IMAGE_RED = new Image("file:src//images/1.png", 125, 125, false, false);
 	private final static Image WALLS_IMAGE_VIOLET = new Image("file:src//images/2.png", 125, 125, false, false);
@@ -15,13 +15,14 @@ public class Walls extends Sprite{
 	
 	public Walls(int type, int xPos, int yPos) {
 		super(xPos, yPos);
-		 Random random = new Random();
-	        isPositive = random.nextBoolean();
-	        value = random.nextInt(10) + 1; // Random value between 1 and 10
-
-	        if (!isPositive) {
-	            value = -value; // Make it negative if isPositive is false
-	        }
+//		 Random random = new Random();
+//	        isPositive = random.nextBoolean();
+//	        value = random.nextInt(10) + 1; // Random value between 1 and 10
+//
+//	        if (!isPositive) {
+//	            value = -value; // Make it negative if isPositive is false
+//	        }
+		this.value = 10;
 		switch (type) {
 		case 0: this.loadImage(Walls.WALLS_IMAGE_RED); break;
 		case 1: this.loadImage(Walls.WALLS_IMAGE_VIOLET); break;

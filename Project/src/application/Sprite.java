@@ -40,9 +40,9 @@ public abstract class Sprite {
 	public boolean collidesWith(Sprite rect2)	{
 		Rectangle2D rectangle1 = this.getBounds();
 		Rectangle2D rectangle2 = rect2.getBounds();
-
 		return rectangle1.intersects(rectangle2);
 	}
+	
 	//method that will return the bounds of an image
 	private Rectangle2D getBounds(){
 		return new Rectangle2D(this.x, this.y, this.width, this.height);

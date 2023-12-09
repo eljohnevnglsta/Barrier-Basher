@@ -40,8 +40,6 @@ public class GameStage {
 		this.about = new Button();
 		this.how = new Button();
 		this.back = new Button("Go Back");
-		
-		this.gametimer = new GameTimer(this.gc,this.scene);
 
 	}
 	
@@ -79,6 +77,7 @@ public class GameStage {
 		this.stage.show();
 		this.play.setOnMouseClicked(event -> {
 			this.clearScene();
+			this.gametimer = new GameTimer(this.gc,this.scene);
 			this.gametimer.start();
 		});
 		this.about.setOnMouseClicked(event -> {

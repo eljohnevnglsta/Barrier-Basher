@@ -4,7 +4,7 @@ import javafx.scene.image.Image;
 
 public class Background extends Sprite {
 	public final static Image BG_IMAGE = new Image("file:src//images/bg.png",480,800,false,false);
-	private boolean stopMoving = false;
+	public boolean stopMoving = false;
 	private int initialY;
 	
 	public Background(int xPos, int yPos) {

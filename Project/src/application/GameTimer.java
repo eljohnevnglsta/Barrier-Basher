@@ -19,11 +19,12 @@ public class GameTimer extends AnimationTimer{
 	private Character myCharacter;
 	private ArrayList<Walls> walls;
 	private long startSpawn;
+	private boolean disableUP = false;
 	
 	public final static int WALLS_INITIAL_YPOS = -100;
 	public final static int WIDTH_PER_WALLS = 125;
-	public final static double SPAWN_DELAY = 5;
-	public final static int BG_SPEED = 3; 
+	public final static double SPAWN_DELAY = 10;
+	public static int BG_SPEED = 2; 
 	
 	GameTimer(GraphicsContext gc, Scene theScene){
 		this.gc = gc;
@@ -47,6 +48,23 @@ public class GameTimer extends AnimationTimer{
 		
 		this.moveSprites();	
 		this.renderSprites();
+		this.handleCollisions();
+	}
+	
+	private void handleCollisions() {
+	    for (Walls wall : walls) {
+	        if (myCharacter.collidesWith(wall)) {
+	        	if (wall.value > 0) {
+		        	this.disableUP = true; 
+		        	this.myCharacter.setDY(GameTimer.BG_SPEED);
+	        		this.myCharacter.strength--; 
+		        	wall.value--; 
+	        	} else {
+	        		this.disableUP = false; 
+	        		break;
+	        	}
+	        } 
+	    }
 	}
 	
 	private void moveSprites() {
@@ -98,7 +116,9 @@ public class GameTimer extends AnimationTimer{
     }
 	
 	private void moveCharacter(KeyCode ke) {
-		if(ke==KeyCode.UP) this.myCharacter.setDY(-4);                 
+		if(!this.disableUP) {
+			if(ke==KeyCode.UP) this.myCharacter.setDY(-4); 
+		}                
 
 		if(ke==KeyCode.LEFT) this.myCharacter.setDX(-4);
 
