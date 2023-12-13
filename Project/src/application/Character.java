@@ -12,7 +12,7 @@ public class Character extends Sprite{
 	public Character(String name, int x, int y){
 		super(x,y);
 		this.name = name;
-		this.strength = 20;
+		this.strength = 50;
 		this.alive = true;
 		
 		this.loadImage(Character.CHAR_IMAGE);

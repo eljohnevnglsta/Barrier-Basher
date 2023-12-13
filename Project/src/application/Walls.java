@@ -1,34 +1,33 @@
 package application;
 
+
 import java.util.Random;
 
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 
 public class Walls extends Sprite{
 	int value;
+//	private Text text;
 	private final static double WALLS_SPEED = GameTimer.BG_SPEED;
 	private final static Image WALLS_IMAGE_RED = new Image("file:src//images/1.png", 125, 125, false, false);
 	private final static Image WALLS_IMAGE_VIOLET = new Image("file:src//images/2.png", 125, 125, false, false);
 	private final static Image WALLS_IMAGE_YELLOW = new Image("file:src//images/3.png", 125, 125, false, false);
 	private final static Image WALLS_IMAGE_BLUE = new Image("file:src//images/4.png", 125, 125, false, false);
-	private boolean isPositive;
 	
-	public Walls(int type, int xPos, int yPos) {
+	
+	public Walls(int type, int xPos, int yPos, int charStrength) {
 		super(xPos, yPos);
-//		 Random random = new Random();
-//	        isPositive = random.nextBoolean();
-//	        value = random.nextInt(10) + 1; // Random value between 1 and 10
-//
-//	        if (!isPositive) {
-//	            value = -value; // Make it negative if isPositive is false
-//	        }
-		this.value = 10;
+		this.value = Walls.getRandom(charStrength);
 		switch (type) {
 		case 0: this.loadImage(Walls.WALLS_IMAGE_RED); break;
 		case 1: this.loadImage(Walls.WALLS_IMAGE_VIOLET); break;
 		case 2: this.loadImage(Walls.WALLS_IMAGE_YELLOW); break;
 		default: this.loadImage(Walls.WALLS_IMAGE_BLUE);
 		}
+		TextField t = new TextField();
+		t.setText(Integer.toString(this.value));
+
 	}
 	
 	void move() {
@@ -37,7 +36,15 @@ public class Walls extends Sprite{
 			this.vanish();
 		}
 	}
-	
+
+//	public int getValue() {
+//		return value;
+//	}
+//
+//	public void setValue(int value) {
+//		this.value = value;
+//	}
+//	
 //	private void loadWall() {
 //		this.loadImage(Walls.WALLS_IMAGE_RED);
 //		this.loadImage(Walls.WALLS_IMAGE_VIOLET);
@@ -45,5 +52,14 @@ public class Walls extends Sprite{
 //		this.loadImage(Walls.WALLS_IMAGE_BLUE);
 //	}
 	
-	
+	public static int getRandom(int strength) {
+		  Random random = new Random();
+		  int min = Math.max(1, strength - 15);
+		  int max = strength;
+		  
+		  int temp = random.nextInt(max - min + 1) + min;
+		  
+		  return (temp);
+		}
+
 }

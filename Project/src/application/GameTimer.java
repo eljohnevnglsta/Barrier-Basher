@@ -7,6 +7,7 @@ import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -28,7 +29,7 @@ public class GameTimer extends AnimationTimer{
 	public final static int WALLS_INITIAL_YPOS = -100;
 	public final static int WIDTH_PER_WALLS = 125;
 	public final static double SPAWN_DELAY = 5;
-	public static int BG_SPEED = 3; 
+	public final static int BG_SPEED = 3; 
 	
 	GameTimer(GameStage stage, GraphicsContext gc, Scene theScene){
 		this.stage = stage; 
@@ -59,8 +60,9 @@ public class GameTimer extends AnimationTimer{
 	private void handleCollisions() {
 	    for (Walls wall : walls) {
 	        if (myCharacter.collidesWith(wall)) {
+	        	if (this.myCharacter.strength <= 0) {this.isGameOver = true; break;}
+	        	System.out.println("WALL VALUE: " + wall.value);
 	        	if (wall.value > 0) {
-	        		if (this.myCharacter.strength < 0) this.isGameOver = true; 
 		        	this.disableUP = true; 
 		        	this.myCharacter.setDY(GameTimer.BG_SPEED);
 	        		this.myCharacter.strength--; 
@@ -72,6 +74,7 @@ public class GameTimer extends AnimationTimer{
 	        		this.myCharacter.setDY(0);
 	        		break;
 	        	}
+	        	
 	        } 
 	    }
 	}
@@ -155,13 +158,14 @@ public class GameTimer extends AnimationTimer{
 	private void renderWalls() {
         for (Walls wall : this.walls) {
         	wall.render(this.gc);
-//        	System.out.println("Wall coordinates: x=" + wall.getX() + ", y=" + wall.getY());
+        	
         }
 	}
 	
 	private void wallsSpawn() {
 	    int yPos = GameTimer.WALLS_INITIAL_YPOS;
-
+	    
+	    
 	    // Spawn walls at the center
 //	    this.walls.add(new Walls(xPos, yPos));
 
@@ -171,13 +175,14 @@ public class GameTimer extends AnimationTimer{
 
 	    // Example: Spawn a wall every 5 seconds
 	    if ((System.nanoTime() - this.startSpawn) / 1000000000.0 > 5.0) {
-		    this.walls.add(new Walls(0, -5, yPos));
-		    this.walls.add(new Walls(1, 116, yPos));
-		    this.walls.add(new Walls(2, 238, yPos));
-		    this.walls.add(new Walls(3, 360, yPos));
+		    this.walls.add(new Walls(0, -5, yPos, this.myCharacter.strength));
+		    this.walls.add(new Walls(1, 116, yPos, this.myCharacter.strength));
+		    this.walls.add(new Walls(2, 238, yPos, this.myCharacter.strength));
+		    this.walls.add(new Walls(3, 360, yPos, this.myCharacter.strength));
 		    this.startSpawn = System.nanoTime();
 	    }
 	}
+
 
 	private void autoSpawn(long currentNanoTime) {
     	double spawnElapsedTime = (currentNanoTime - this.startSpawn) / 1000000000.0;
