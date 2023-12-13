@@ -48,19 +48,22 @@ public class GameTimer extends AnimationTimer{
 
 	@Override
 	public void handle(long currentNanoTime) {
+		if (this.isGameOver) this.stage.setupGameOver();
 		this.gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
 		this.redrawBackgroundImage();
 		this.autoSpawn(currentNanoTime);
 		this.moveSprites();	
 		this.renderSprites();
 		this.handleCollisions();
-		if (this.isGameOver) this.stage.setupGameOver();
 	}
 	
 	private void handleCollisions() {
 	    for (Walls wall : walls) {
 	        if (myCharacter.collidesWith(wall)) {
-	        	if (this.myCharacter.strength <= 0) {this.isGameOver = true; break;}
+	        	if (this.myCharacter.strength <= 0) {
+	        		this.isGameOver = true; 
+	        		break;
+	        	}
 	        	System.out.println("WALL VALUE: " + wall.value);
 	        	if (wall.value > 0) {
 		        	this.disableUP = true; 
@@ -164,7 +167,7 @@ public class GameTimer extends AnimationTimer{
 	
 	private void wallsSpawn() {
 	    int yPos = GameTimer.WALLS_INITIAL_YPOS;
-	    
+	    this.walls.clear();
 	    
 	    // Spawn walls at the center
 //	    this.walls.add(new Walls(xPos, yPos));

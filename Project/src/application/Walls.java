@@ -54,8 +54,8 @@ public class Walls extends Sprite{
 	
 	public static int getRandom(int strength) {
 		  Random random = new Random();
-		  int min = Math.max(1, strength - 15);
-		  int max = strength;
+		  int min = Math.max(1, strength/2);
+		  int max = strength + 5;
 		  
 		  int temp = random.nextInt(max - min + 1) + min;
 		  
