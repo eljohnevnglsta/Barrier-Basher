@@ -71,6 +71,7 @@ public class GameStage {
 		this.root.getChildren().add(canvas);
 		this.stage.setTitle("Barrier Basher");	
 		this.stage.setScene(this.scene);
+		this.stage.setResizable(false);
 		
 		this.setupMain();
 		this.mainMenu();
@@ -121,4 +122,5 @@ public class GameStage {
 		this.root.getChildren().add(new ImageView(image));
 		this.root.getChildren().add(this.back);
 	}
+
 }

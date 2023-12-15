@@ -1,16 +1,21 @@
 package application;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class GameTimer extends AnimationTimer{
 	
@@ -21,9 +26,12 @@ public class GameTimer extends AnimationTimer{
 	private double backgroundY;
 	private Character myCharacter;
 	private ArrayList<Walls> walls;
+	private ArrayList <Integer> wallValuesBasis;  
+	private ArrayList <Text> wallValues;
 	private long startSpawn;
 	private boolean disableUP = false;
 	public boolean isGameOver = false; 
+	private Text strengthText;
 	
 	public final static int CHARACTER_SPEED = 4;
 	public final static int WALLS_INITIAL_YPOS = -100;
@@ -40,7 +48,12 @@ public class GameTimer extends AnimationTimer{
 		
 		this.bg = new Background(0, 0);
 		this.walls = new ArrayList<Walls>();
+		this.wallValuesBasis = new ArrayList<Integer>();
 		
+		
+		this.setUpStrengthDisplay();
+
+        
 		//call method to handle mouse click event
 		this.handleKeyPressEvent();
 		this.setBG();
@@ -54,10 +67,54 @@ public class GameTimer extends AnimationTimer{
 		this.autoSpawn(currentNanoTime);
 		this.moveSprites();	
 		this.renderSprites();
-		this.handleCollisions();
+		this.handleWallCollisions();
+		this.myCharacter.checkWindowBoundaries();
+		updateTextDisplays();
 	}
 	
-	private void handleCollisions() {
+	private void setUpStrengthDisplay() {
+		this.strengthText = new Text();
+    	Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/SuperMario256.ttf"), 40);
+    	this.strengthText.setFont(customFont);
+        this.strengthText.setX(this.myCharacter.x - 3); // Adjust the X position
+        this.strengthText.setY(this.myCharacter.y + 120); // Adjust the Y position
+        Group root = (Group) theScene.getRoot(); // Assuming root is a Group, change the type if needed
+        root.getChildren().add(this.strengthText);
+        
+        this.wallValues = new ArrayList<Text>();
+	}
+	
+	private void setUpWallValuesDisplay() {
+    	Group root = (Group) theScene.getRoot();
+    	Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/SuperMario256.ttf"), 40);
+    	this.strengthText.setFont(customFont);
+    	
+        for (Walls i : this.walls) {
+        	Text wallVal = new Text();
+        	wallVal.setFont(customFont);
+        	wallVal.setX(i.x);
+        	wallVal.setX(i.y);
+        	this.wallValues.add(wallVal);
+        	root.getChildren().add(wallVal);
+        }
+	}
+	
+    private void updateTextDisplays() {
+    	this.setUpWallValuesDisplay();
+    	
+        // Update the text content with the current strength value
+        this.strengthText.setText(Integer.toString(myCharacter.getStrength()));
+        this.strengthText.setX(this.myCharacter.x - 3);
+        this.strengthText.setY(this.myCharacter.y + 120);
+        
+        for (int i = 0; i < this.walls.size(); i++) {
+            this.wallValues.get(i).setText(Integer.toString(this.walls.get(i).value));
+            this.wallValues.get(i).setX(this.walls.get(i).x);
+            this.wallValues.get(i).setY(this.walls.get(i).y);
+        }
+    }
+	
+	private void handleWallCollisions() {
 	    for (Walls wall : walls) {
 	        if (myCharacter.collidesWith(wall)) {
 	        	if (this.myCharacter.strength <= 0) {
@@ -72,6 +129,7 @@ public class GameTimer extends AnimationTimer{
 		        	wall.value--;
 	        	} else {
 	        		System.out.println("STRENGTH: " + this.myCharacter.strength);
+	        		this.clearWallValues();
 	        		wall.visible = false;
 	        		this.disableUP = false; 
 	        		this.myCharacter.setDY(0);
@@ -155,7 +213,17 @@ public class GameTimer extends AnimationTimer{
 				w.move();
 			}
 			else this.walls.remove(i);
+			
+			if (w.y >= GameStage.WINDOW_HEIGHT) {
+				this.clearWallValues();
+			}
 		}
+	}
+	
+	private void clearWallValues() {
+	    for (Text j : this.wallValues) {
+	    	j.setOpacity(0);
+	    }
 	}
 	
 	private void renderWalls() {
@@ -168,20 +236,21 @@ public class GameTimer extends AnimationTimer{
 	private void wallsSpawn() {
 	    int yPos = GameTimer.WALLS_INITIAL_YPOS;
 	    this.walls.clear();
+	    this.wallValuesBasis.clear();
+	    this.wallValues.clear();
 	    
-	    // Spawn walls at the center
-//	    this.walls.add(new Walls(xPos, yPos));
-
-	    // You can adjust the pattern based on your requirements
-	    // For example, spawn additional walls at specific intervals
-	    // Adjust the pattern based on your desired rhythmic behavior
-
-	    // Example: Spawn a wall every 5 seconds
+	    this.wallValuesBasis.add(this.myCharacter.strength);
+	    this.wallValuesBasis.add(this.myCharacter.strength);
+	    this.wallValuesBasis.add(this.myCharacter.strength);
+	    this.wallValuesBasis.add(this.myCharacter.strength/2);
+	    
+	    Collections.shuffle(wallValuesBasis);
+	    
 	    if ((System.nanoTime() - this.startSpawn) / 1000000000.0 > 5.0) {
-		    this.walls.add(new Walls(0, -5, yPos, this.myCharacter.strength));
-		    this.walls.add(new Walls(1, 116, yPos, this.myCharacter.strength));
-		    this.walls.add(new Walls(2, 238, yPos, this.myCharacter.strength));
-		    this.walls.add(new Walls(3, 360, yPos, this.myCharacter.strength));
+		    this.walls.add(new Walls(0, -5, yPos, this.wallValuesBasis.get(0)));
+		    this.walls.add(new Walls(1, 116, yPos, this.wallValuesBasis.get(1)));
+		    this.walls.add(new Walls(2, 238, yPos, this.wallValuesBasis.get(2)));
+		    this.walls.add(new Walls(3, 360, yPos, this.wallValuesBasis.get(3)));
 		    this.startSpawn = System.nanoTime();
 	    }
 	}
