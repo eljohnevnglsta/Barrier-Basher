@@ -1,24 +1,32 @@
 package application;
 
+import java.util.ArrayList;
 import java.util.Random;
+
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class Character extends Sprite{
 	private String name;
+	private Scene scene; 
 	public int strength;
+	Text strengthText;
 	private boolean alive;
-	private final static int length = 90;
-	private final static int width = 51;
-	
-	public final static Image CHAR_IMAGE = new Image("file:src//images/ej.png",Character.width,Character.length,false,false);
+	public final static Image CHAR_IMAGE = new Image("file:src//images/ej.png",51,90,false,false);
 
-	public Character(String name, int x, int y){
+	public Character(String name, int x, int y, Scene scene){
 		super(x,y);
+		this.scene = scene;
 		this.name = name;
-		this.strength = 100;
+		this.strength = 1;
 		this.alive = true;
+		this.strengthText = new Text();
 		
 		this.loadImage(Character.CHAR_IMAGE);
+		this.setUpStrengthDisplay();
 	}
 
 	public boolean isAlive(){
@@ -47,6 +55,21 @@ public class Character extends Sprite{
 		this.strength = strength;
 	}
 
+	private void setUpStrengthDisplay() {
+    	Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/SuperMario256.ttf"), 40);
+    	this.strengthText.setFont(customFont);
+        this.strengthText.setX(this.x - 3); // Adjust the X position
+        this.strengthText.setY(this.y + 120); // Adjust the Y position
+        Group root = (Group) this.scene.getRoot(); // Assuming root is a Group, change the type if needed
+        root.getChildren().add(strengthText);
+	}
+	
+	void moveStrength() {
+        this.strengthText.setText(Integer.toString(this.strength));
+        this.strengthText.setX(this.x - 3);
+        this.strengthText.setY(this.y + 120);
+	}
+	
     void checkWindowBoundaries() {
         // Check if the character is going out of the left boundary
         if (this.x < 0) {
@@ -67,5 +90,15 @@ public class Character extends Sprite{
         if (this.y > (GameStage.WINDOW_HEIGHT - this.height)) {
             this.y = (int) (GameStage.WINDOW_HEIGHT - this.height); // Set the character's position to the bottom boundary
         }
+    }
+    
+    void gainStrength(int increase){
+    	this.strength+=increase;
+    	System.out.println("STRENGTH: "+ this.strength);
+    }
+    
+    void decStrength(int increase){
+    	this.strength-=increase;
+    	System.out.println("STRENGTH: "+ this.strength);
     }
 }

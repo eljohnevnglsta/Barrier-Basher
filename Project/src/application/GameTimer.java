@@ -6,16 +6,11 @@ import java.util.Random;
 
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 public class GameTimer extends AnimationTimer{
 	
@@ -26,116 +21,74 @@ public class GameTimer extends AnimationTimer{
 	private double backgroundY;
 	private Character myCharacter;
 	private ArrayList<Walls> walls;
-	private ArrayList <Integer> wallValuesBasis;  
-	private ArrayList <Text> wallValues;
-	private long startSpawn;
+	private ArrayList<Integer> wallValuesBasis;
+	private ArrayList<Points> points;
+	private ArrayList<Bombs> bombs;
+	private long startSpawnWalls;
+	private long startSpawnItems;
 	private boolean disableUP = false;
 	public boolean isGameOver = false; 
-	private Text strengthText;
 	
 	public final static int CHARACTER_SPEED = 4;
 	public final static int WALLS_INITIAL_YPOS = -100;
 	public final static int WIDTH_PER_WALLS = 125;
-	public final static double SPAWN_DELAY = 5;
-	public final static int BG_SPEED = 3; 
+	public final static double WALL_SPAWN_DELAY = 5;
+	public final static double ITEM_SPAWN_DELAY = 1;
+	public static int BG_SPEED = 2; 
+	public final static int POINTS_INITIAL_YPOS = 0;
+	public final static int BOMBS_INITIAL_YPOS = 10;
 	
 	GameTimer(GameStage stage, GraphicsContext gc, Scene theScene){
 		this.stage = stage; 
 		this.gc = gc;
 		this.theScene = theScene;
-		this.myCharacter = new Character("Eljohn",190,600);
-		this.startSpawn = System.nanoTime();
+		this.myCharacter = new Character("Eljohn",190,600, theScene);
+		this.startSpawnWalls = System.nanoTime();
+		this.startSpawnItems = System.nanoTime();
 		
 		this.bg = new Background(0, 0);
 		this.walls = new ArrayList<Walls>();
 		this.wallValuesBasis = new ArrayList<Integer>();
+		this.points = new ArrayList<Points>();
+		this.bombs = new ArrayList<Bombs>();
 		
-		
-		this.setUpStrengthDisplay();
-
-        
 		//call method to handle mouse click event
 		this.handleKeyPressEvent();
 		this.setBG();
+		
 	}
 
 	@Override
 	public void handle(long currentNanoTime) {
-		if (this.isGameOver) this.stage.setupGameOver();
 		this.gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
+		if (this.isGameOver) this.stage.setupGameOver();
 		this.redrawBackgroundImage();
-		this.autoSpawn(currentNanoTime);
+		this.autoSpawnWalls(currentNanoTime);
+		this.autoSpawnItems(currentNanoTime);
 		this.moveSprites();	
 		this.renderSprites();
-		this.handleWallCollisions();
+		this.handleCollisions();
+		this.myCharacter.moveStrength();
 		this.myCharacter.checkWindowBoundaries();
-		updateTextDisplays();
 	}
 	
-	private void setUpStrengthDisplay() {
-		this.strengthText = new Text();
-    	Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/SuperMario256.ttf"), 40);
-    	this.strengthText.setFont(customFont);
-        this.strengthText.setX(this.myCharacter.x - 3); // Adjust the X position
-        this.strengthText.setY(this.myCharacter.y + 120); // Adjust the Y position
-        Group root = (Group) theScene.getRoot(); // Assuming root is a Group, change the type if needed
-        root.getChildren().add(this.strengthText);
-        
-        this.wallValues = new ArrayList<Text>();
-	}
-	
-	private void setUpWallValuesDisplay() {
-    	Group root = (Group) theScene.getRoot();
-    	Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/SuperMario256.ttf"), 40);
-    	this.strengthText.setFont(customFont);
-    	
-        for (Walls i : this.walls) {
-        	Text wallVal = new Text();
-        	wallVal.setFont(customFont);
-        	wallVal.setX(i.x);
-        	wallVal.setX(i.y);
-        	this.wallValues.add(wallVal);
-        	root.getChildren().add(wallVal);
-        }
-	}
-	
-    private void updateTextDisplays() {
-    	this.setUpWallValuesDisplay();
-    	
-        // Update the text content with the current strength value
-        this.strengthText.setText(Integer.toString(myCharacter.getStrength()));
-        this.strengthText.setX(this.myCharacter.x - 3);
-        this.strengthText.setY(this.myCharacter.y + 120);
-        
-        for (int i = 0; i < this.walls.size(); i++) {
-            this.wallValues.get(i).setText(Integer.toString(this.walls.get(i).value));
-            this.wallValues.get(i).setX(this.walls.get(i).x);
-            this.wallValues.get(i).setY(this.walls.get(i).y);
-        }
-    }
-	
-	private void handleWallCollisions() {
+	private void handleCollisions() {
 	    for (Walls wall : walls) {
 	        if (myCharacter.collidesWith(wall)) {
-	        	if (this.myCharacter.strength <= 0) {
-	        		this.isGameOver = true; 
-	        		break;
-	        	}
-	        	System.out.println("WALL VALUE: " + wall.value);
 	        	if (wall.value > 0) {
+	        		if (this.myCharacter.strength < 0) this.isGameOver = true; 
 		        	this.disableUP = true; 
 		        	this.myCharacter.setDY(GameTimer.BG_SPEED);
 	        		this.myCharacter.strength--; 
 		        	wall.value--;
 	        	} else {
 	        		System.out.println("STRENGTH: " + this.myCharacter.strength);
-	        		this.clearWallValues();
 	        		wall.visible = false;
+	        		wall.valueText.setVisible(false);
 	        		this.disableUP = false; 
 	        		this.myCharacter.setDY(0);
 	        		break;
 	        	}
-	        	
 	        } 
 	    }
 	}
@@ -144,12 +97,23 @@ public class GameTimer extends AnimationTimer{
 		this.moveWalls();
 		this.bg.moveBG();
 		this.myCharacter.move();
+		this.renderWallValueDisplay();
+		this.movePoints();
+		this.moveBombs();
 	}
 	
 	private void renderSprites() {
 		this.bg.render(this.gc);
 		this.renderWalls();
 		this.myCharacter.render(this.gc);
+		this.renderPoints();
+		this.renderBombs();
+	}
+	
+	private void renderWallValueDisplay() {
+		for (Walls i : this.walls) {
+			i.moveWallValueDisplay();
+		}
 	}
 
 	private void setBG() {
@@ -213,31 +177,20 @@ public class GameTimer extends AnimationTimer{
 				w.move();
 			}
 			else this.walls.remove(i);
-			
-			if (w.y >= GameStage.WINDOW_HEIGHT) {
-				this.clearWallValues();
-			}
 		}
-	}
-	
-	private void clearWallValues() {
-	    for (Text j : this.wallValues) {
-	    	j.setOpacity(0);
-	    }
 	}
 	
 	private void renderWalls() {
         for (Walls wall : this.walls) {
         	wall.render(this.gc);
-        	
+//        	System.out.println("Wall coordinates: x=" + wall.getX() + ", y=" + wall.getY());
         }
 	}
 	
 	private void wallsSpawn() {
 	    int yPos = GameTimer.WALLS_INITIAL_YPOS;
-	    this.walls.clear();
+
 	    this.wallValuesBasis.clear();
-	    this.wallValues.clear();
 	    
 	    this.wallValuesBasis.add(this.myCharacter.strength);
 	    this.wallValuesBasis.add(this.myCharacter.strength);
@@ -246,23 +199,96 @@ public class GameTimer extends AnimationTimer{
 	    
 	    Collections.shuffle(wallValuesBasis);
 	    
-	    if ((System.nanoTime() - this.startSpawn) / 1000000000.0 > 5.0) {
-		    this.walls.add(new Walls(0, -5, yPos, this.wallValuesBasis.get(0)));
-		    this.walls.add(new Walls(1, 116, yPos, this.wallValuesBasis.get(1)));
-		    this.walls.add(new Walls(2, 238, yPos, this.wallValuesBasis.get(2)));
-		    this.walls.add(new Walls(3, 360, yPos, this.wallValuesBasis.get(3)));
-		    this.startSpawn = System.nanoTime();
+	    if ((System.nanoTime() - this.startSpawnWalls) / 1000000000.0 > 5.0) {
+		    this.walls.add(new Walls(0, -5, yPos, this.wallValuesBasis.get(0), this.theScene));
+		    this.walls.add(new Walls(1, 116, yPos, this.wallValuesBasis.get(1), this.theScene));
+		    this.walls.add(new Walls(2, 238, yPos, this.wallValuesBasis.get(2), this.theScene));
+		    this.walls.add(new Walls(3, 360, yPos, this.wallValuesBasis.get(3), this.theScene));
+		    this.startSpawnWalls = System.nanoTime();
 	    }
 	}
 
+	
+	private void movePoints() {
+		for(int i = 0; i < this.points.size(); i++){
+			Points p = this.points.get(i);
+			if (p.isVisible()){
+				p.move();
+				p.checkCollision(this.myCharacter);
+			}
+			else this.points.remove(i);
+		}
+	}
+	
+	private void moveBombs() {
+		for(int i = 0; i < this.bombs.size(); i++){
+			Bombs b = this.bombs.get(i);
+			if (b.isVisible()){
+				b.move();
+				b.checkCollision(this.myCharacter);
+				if (this.myCharacter.strength < 0) {
+					this.isGameOver = true; 
+				}
+			}
+			else this.bombs.remove(i);
+		}
+	}
+	
+	private void pointsSpawn() {
+		int yPos = GameTimer.POINTS_INITIAL_YPOS, xPos, type;
 
-	private void autoSpawn(long currentNanoTime) {
-    	double spawnElapsedTime = (currentNanoTime - this.startSpawn) / 1000000000.0;
+		Random r = new Random();
+		
+		type = r.nextInt(3);
+		xPos = r.nextInt(400);
+		
+		this.points.add(new Points(type, xPos, yPos));
+	}
+	
+	private void bombsSpawn() {
+		int yPos = GameTimer.BOMBS_INITIAL_YPOS, xPos, type;
+		
+		Random r = new Random();
+		
+		type = r.nextInt(3);
+		xPos = r.nextInt(400);
+		
+		this.bombs.add(new Bombs(type, xPos, yPos));
+	}
+	
+	private void renderPoints() {
+		for (Points point : this.points) {
+			point.render(this.gc);
+		}
+	}
+	
+	private void renderBombs() {
+		for (Bombs bomb : this.bombs) {
+			bomb.render(this.gc);
+		}
+	}
+	
+	private void autoSpawnWalls(long currentNanoTime) {
+    	double spawnElapsedTime = (currentNanoTime - this.startSpawnWalls) / 1000000000.0;
         // spawn walls
-        if(spawnElapsedTime > GameTimer.SPAWN_DELAY) {
+        if(spawnElapsedTime > GameTimer.WALL_SPAWN_DELAY) {
         	this.wallsSpawn();
-        	this.startSpawn = System.nanoTime();
+        	this.startSpawnWalls = System.nanoTime();
         }
+	}
+	
+	private void autoSpawnItems(long currentNanoTime) {
+	    double spawnElapsedTime = (currentNanoTime - this.startSpawnItems) / 1000000000.0;
+	    int numberOfWalls = this.walls.size(); // Get the current number of walls
+
+	    // Check if a certain number of walls have been spawned before spawning items
+	    if (numberOfWalls > 0 || numberOfWalls % 5 == 0) {
+	        if (spawnElapsedTime > GameTimer.ITEM_SPAWN_DELAY) {
+	            this.pointsSpawn();
+	            this.bombsSpawn();
+	            this.startSpawnItems = System.nanoTime();
+	        }
+	    }
 	}
 	
 	

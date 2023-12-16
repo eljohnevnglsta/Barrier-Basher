@@ -7,6 +7,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -28,6 +30,8 @@ public class GameStage {
 	private Image mainMenu = new Image("file:src/images/menu.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image aboutDev = new Image("file:src/images/about.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image howToPlay = new Image("file:src/images/how.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
+	private Media media = new Media(getClass().getResource("/music/bgm.mp3").toExternalForm());
+	private MediaPlayer mediaPlayer;
 	
 	public GameStage () {
 		this.root = new Group();
@@ -43,7 +47,8 @@ public class GameStage {
 		this.how = new Button();
 		this.backFromGame = new Button(); 
 		this.back = new Button("Go Back");
-
+		
+		this.music();
 	}
 	
 	private void setupButton(Button button, int sX, int sY, int pX, int pY) {
@@ -71,7 +76,6 @@ public class GameStage {
 		this.root.getChildren().add(canvas);
 		this.stage.setTitle("Barrier Basher");	
 		this.stage.setScene(this.scene);
-		this.stage.setResizable(false);
 		
 		this.setupMain();
 		this.mainMenu();
@@ -109,6 +113,12 @@ public class GameStage {
 		});
 	}
 	
+	void music() {
+	    this.mediaPlayer = new MediaPlayer(this.media);
+        this.mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Play the music indefinitely
+        this.mediaPlayer.play();
+	}
+	
 	private void clearScene() {
 	    // Clear the root group
 	    this.root.getChildren().clear();
@@ -122,5 +132,4 @@ public class GameStage {
 		this.root.getChildren().add(new ImageView(image));
 		this.root.getChildren().add(this.back);
 	}
-
 }

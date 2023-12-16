@@ -1,26 +1,30 @@
 package application;
 
-
-import java.util.ArrayList;
 import java.util.Random;
 
-import javafx.scene.control.TextField;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class Walls extends Sprite{
 	int value;
-//	private Text text;
+	Text valueText;
+	Scene scene;
 	private final static double WALLS_SPEED = GameTimer.BG_SPEED;
-	private final static int IMAGE_SIZE = 125;
+	public final static int IMAGE_SIZE = 125;
 	private final static Image WALLS_IMAGE_RED = new Image("file:src//images/1.png", Walls.IMAGE_SIZE, Walls.IMAGE_SIZE, false, false);
 	private final static Image WALLS_IMAGE_VIOLET = new Image("file:src//images/2.png", Walls.IMAGE_SIZE, Walls.IMAGE_SIZE, false, false);
 	private final static Image WALLS_IMAGE_YELLOW = new Image("file:src//images/3.png", Walls.IMAGE_SIZE, Walls.IMAGE_SIZE, false, false);
 	private final static Image WALLS_IMAGE_BLUE = new Image("file:src//images/4.png", Walls.IMAGE_SIZE, Walls.IMAGE_SIZE, false, false);
 	
-	
-	public Walls(int type, int xPos, int yPos, int charStrength) {
+	public Walls(int type, int xPos, int yPos, int currentStrength, Scene scene) {
 		super(xPos, yPos);
-		this.value = Walls.getRandom(charStrength);
+		this.value = Walls.getRandom(currentStrength);
+		this.valueText = new Text();
+		this.scene = scene;
+		this.setUpWallValueDisplay();
 		switch (type) {
 		case 0: this.loadImage(Walls.WALLS_IMAGE_RED); break;
 		case 1: this.loadImage(Walls.WALLS_IMAGE_VIOLET); break;
@@ -31,9 +35,25 @@ public class Walls extends Sprite{
 	
 	void move() {
 		this.y += Walls.WALLS_SPEED;
-		if (this.y >= GameStage.WINDOW_HEIGHT){
+		if (this.y >= GameStage.WINDOW_HEIGHT){	// if this monster passes through the bottom of the scene, set visible to false
 			this.vanish();
+			this.valueText.setVisible(false);
 		}
+	}
+	
+	private void setUpWallValueDisplay() {
+		Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/SuperMario256.ttf"), 40);
+    	this.valueText.setFont(customFont);
+    	this.valueText.setX(this.x);
+    	this.valueText.setX(this.y);
+        Group root = (Group) this.scene.getRoot(); // Assuming root is a Group, change the type if needed
+    	root.getChildren().add(this.valueText);
+	}
+	
+	public void moveWallValueDisplay() {
+        this.valueText.setText(Integer.toString(this.value));
+        this.valueText.setX(this.x);
+        this.valueText.setY(this.y);
 	}
 	
 	public static int getRandom(int strength) {
