@@ -1,6 +1,8 @@
 package application;
 
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 public class Points extends Sprite {
 	int value;
@@ -9,7 +11,8 @@ public class Points extends Sprite {
 	private final static Image POINTS_IMAGE_5 = new Image("file:src//images/heart.png", Points.IMAGE_SIZE, Points.IMAGE_SIZE, false, false);
 	private final static Image POINTS_IMAGE_10 = new Image("file:src//images/elixir.png", Points.IMAGE_SIZE, Points.IMAGE_SIZE, false, false);
 	private final static Image POINTS_IMAGE_15 = new Image("file:src//images/diamond.png", Points.IMAGE_SIZE, Points.IMAGE_SIZE, false, false);
-	
+	private MediaPlayer mediaPlayer;
+	private Media media = new Media(getClass().getResource("/music/powerup.mp3").toExternalForm());
 	
 	public Points(int type, int xPos, int yPos) {
 		super(xPos, yPos);
@@ -29,9 +32,15 @@ public class Points extends Sprite {
 	
 	void checkCollision(Character character) {
 		if (this.collidesWith(character)) {
-			System.out.println(character.getName() + " has collected an elixir!");
+			System.out.println(character.getName() + " increased his strength!");
 			this.vanish();
 			character.gainStrength(Points.this.value);
+			this.music();
 		}
+	}
+	
+	void music() {
+	    this.mediaPlayer = new MediaPlayer(this.media);
+        this.mediaPlayer.play();	
 	}
 }

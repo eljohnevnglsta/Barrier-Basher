@@ -30,8 +30,12 @@ public class GameStage {
 	private Image mainMenu = new Image("file:src/images/menu.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image aboutDev = new Image("file:src/images/about.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image howToPlay = new Image("file:src/images/how.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
-	private Media media = new Media(getClass().getResource("/music/bgm.mp3").toExternalForm());
-	private MediaPlayer mediaPlayer;
+	private Media mediaMain = new Media(getClass().getResource("/music/bgm.mp3").toExternalForm());
+	private Media mediaGame = new Media(getClass().getResource("/music/gamemusic.mp3").toExternalForm());
+	private Media mediaOver = new Media(getClass().getResource("/music/gameover.mp3").toExternalForm());
+	private MediaPlayer mediaPlayerMain;
+	private MediaPlayer mediaPlayerGame;
+	private MediaPlayer mediaPlayerOver;
 	
 	public GameStage () {
 		this.root = new Group();
@@ -48,7 +52,7 @@ public class GameStage {
 		this.backFromGame = new Button(); 
 		this.back = new Button("Go Back");
 		
-		this.music();
+		this.musicMain();
 	}
 	
 	private void setupButton(Button button, int sX, int sY, int pX, int pY) {
@@ -82,6 +86,8 @@ public class GameStage {
 	}
 	
 	public void setupGameOver() {
+		this.musicOver();
+		this.mediaPlayerGame.stop();
 		this.gametimer.stop();
 		this.clearScene();
 		this.switchScene(this.gameover);
@@ -95,6 +101,8 @@ public class GameStage {
 		this.play.setOnMouseClicked(event -> {
 			this.clearScene();
 			this.gametimer = new GameTimer(this,this.gc,this.scene);
+			this.musicGame();
+			this.mediaPlayerMain.stop();
 			this.gametimer.start();
 		});
 		this.about.setOnMouseClicked(event -> {
@@ -106,17 +114,30 @@ public class GameStage {
 		this.back.setOnMouseClicked(event -> {
 			this.clearScene();
 			this.setupMain();
+			this.mediaPlayerMain.play();
 		});
 		this.backFromGame.setOnMouseClicked(event -> {
 			this.clearScene();
 			this.setupMain();
+			this.mediaPlayerMain.play();
 		});
 	}
 	
-	void music() {
-	    this.mediaPlayer = new MediaPlayer(this.media);
-        this.mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Play the music indefinitely
-        this.mediaPlayer.play();
+	void musicMain() {
+	    this.mediaPlayerMain = new MediaPlayer(this.mediaMain);
+        this.mediaPlayerMain.setCycleCount(MediaPlayer.INDEFINITE); // Play the music indefinitely
+        this.mediaPlayerMain.play();
+	}
+	
+	void musicGame() {
+	    this.mediaPlayerGame = new MediaPlayer(this.mediaGame);
+        this.mediaPlayerGame.setCycleCount(MediaPlayer.INDEFINITE); // Play the music indefinitely
+        this.mediaPlayerGame.play();
+	}
+	
+	void musicOver() {
+	    this.mediaPlayerOver = new MediaPlayer(this.mediaOver);
+        this.mediaPlayerOver.play();	
 	}
 	
 	private void clearScene() {

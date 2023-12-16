@@ -1,8 +1,5 @@
 package application;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -15,13 +12,13 @@ public class Character extends Sprite{
 	public int strength;
 	Text strengthText;
 	private boolean alive;
-	public final static Image CHAR_IMAGE = new Image("file:src//images/ej.png",51,90,false,false);
+	public final static Image CHAR_IMAGE = new Image("file:src//images/ej.png", 51, 90,false,false);
 
 	public Character(String name, int x, int y, Scene scene){
 		super(x,y);
 		this.scene = scene;
 		this.name = name;
-		this.strength = 1;
+		this.strength = 100;
 		this.alive = true;
 		this.strengthText = new Text();
 		
@@ -70,7 +67,7 @@ public class Character extends Sprite{
         this.strengthText.setY(this.y + 120);
 	}
 	
-    void checkWindowBoundaries() {
+    void checkWindowBoundaries(GameTimer gt) {
         // Check if the character is going out of the left boundary
         if (this.x < 0) {
             this.x = 0; // Set the character's position to the left boundary
@@ -85,11 +82,10 @@ public class Character extends Sprite{
         if (this.y < 0) {
             this.y = 0; // Set the character's position to the top boundary
         }
-
-        // Check if the character is going out of the bottom boundary
-        if (this.y > (GameStage.WINDOW_HEIGHT - this.height)) {
-            this.y = (int) (GameStage.WINDOW_HEIGHT - this.height); // Set the character's position to the bottom boundary
-        }
+        
+        if (this.y >= (GameStage.WINDOW_HEIGHT + this.height)) {
+            gt.isGameOver = true;
+       }
     }
     
     void gainStrength(int increase){

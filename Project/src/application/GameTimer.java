@@ -10,7 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
+import javafx.scene.text.Font;
 
 public class GameTimer extends AnimationTimer{
 	
@@ -18,14 +18,24 @@ public class GameTimer extends AnimationTimer{
 	private GameStage stage; 
 	private Scene theScene;
 	private Background bg;
+	
 	private double backgroundY;
+	
 	private Character myCharacter;
+	
 	private ArrayList<Walls> walls;
 	private ArrayList<Integer> wallValuesBasis;
 	private ArrayList<Points> points;
 	private ArrayList<Bombs> bombs;
+	
 	private long startSpawnWalls;
 	private long startSpawnItems;
+	private long Time;
+	
+	private int secondCounter;
+	private int gameCounter;
+	private String gameCounterText;
+	
 	private boolean disableUP = false;
 	public boolean isGameOver = false; 
 	
@@ -34,9 +44,12 @@ public class GameTimer extends AnimationTimer{
 	public final static int WIDTH_PER_WALLS = 125;
 	public final static double WALL_SPAWN_DELAY = 5;
 	public final static double ITEM_SPAWN_DELAY = 1;
-	public static int BG_SPEED = 2; 
+	public final static int BG_SPEED = 3; 
 	public final static int POINTS_INITIAL_YPOS = 0;
 	public final static int BOMBS_INITIAL_YPOS = 10;
+	
+	
+	public final Font CUSTOM_FONT = Font.loadFont(getClass().getResourceAsStream("/fonts/SuperMario256.ttf"), 40);
 	
 	GameTimer(GameStage stage, GraphicsContext gc, Scene theScene){
 		this.stage = stage; 
@@ -52,6 +65,9 @@ public class GameTimer extends AnimationTimer{
 		this.points = new ArrayList<Points>();
 		this.bombs = new ArrayList<Bombs>();
 		
+		this.gameCounter = 60;
+		this.gameCounterText = "1:00";
+		
 		//call method to handle mouse click event
 		this.handleKeyPressEvent();
 		this.setBG();
@@ -60,6 +76,8 @@ public class GameTimer extends AnimationTimer{
 
 	@Override
 	public void handle(long currentNanoTime) {
+		seconds(currentNanoTime);
+		
 		this.gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
 		if (this.isGameOver) this.stage.setupGameOver();
 		this.redrawBackgroundImage();
@@ -69,7 +87,14 @@ public class GameTimer extends AnimationTimer{
 		this.renderSprites();
 		this.handleCollisions();
 		this.myCharacter.moveStrength();
-		this.myCharacter.checkWindowBoundaries();
+		this.myCharacter.checkWindowBoundaries(this);
+		
+		this.drawTime();
+		
+        if(this.gameCounter == 0) { // checks if game counter runs out
+        	this.stop();
+        	stage.setupGameOver();
+        }
 	}
 	
 	private void handleCollisions() {
@@ -93,21 +118,48 @@ public class GameTimer extends AnimationTimer{
 	    }
 	}
 	
+//	FROM KUYA BERN
+	// Method that updates the game timer text and second counter (for checking stats)
+	private void seconds(long currentTime){
+		// Condition that checks if the time converted from nanoseconds to seconds elapses 1.00s
+		// To check the instance of time in seconds, currentTime is divided by 1,000,000,000 (1 billion), 1 nanosecond = 1^e-9 second
+		if (((currentTime-this.Time) / 1000000000.0) >= 1){ 
+			this.secondCounter++;
+			this.gameCounter = 60 - this.secondCounter; // 60 - running time
+			if (gameCounter <= 9) { // updates game counter text (single digit / double digit count)
+				this.gameCounterText = "0:0" + gameCounter; // single digit
+			} else {
+				this.gameCounterText = "0:" + gameCounter; // double digit
+			}
+			this.Time = System.nanoTime(); // updates time or resets back to 0
+		}
+	}
+	
+	// Draw game stats including time, score, player's strength, and witch health
+	private void drawTime(){
+		this.gc.setFont(this.CUSTOM_FONT);
+		if (myCharacter.isAlive()) {
+			this.gc.fillText("Time: " + gameCounterText, 20, 40);
+		} else {
+			this.gc.fillText("Time: " + gameCounterText, 20, 40);
+		}
+	}
+	
 	private void moveSprites() {
 		this.moveWalls();
 		this.bg.moveBG();
 		this.myCharacter.move();
-		this.renderWallValueDisplay();
 		this.movePoints();
 		this.moveBombs();
 	}
 	
 	private void renderSprites() {
 		this.bg.render(this.gc);
-		this.renderWalls();
-		this.myCharacter.render(this.gc);
 		this.renderPoints();
 		this.renderBombs();
+		this.renderWalls();
+		this.myCharacter.render(this.gc);
+		this.renderWallValueDisplay();
 	}
 	
 	private void renderWallValueDisplay() {
@@ -162,6 +214,7 @@ public class GameTimer extends AnimationTimer{
 		if(ke==KeyCode.DOWN) this.myCharacter.setDY(GameTimer.CHARACTER_SPEED);
 		
 		if(ke==KeyCode.RIGHT) this.myCharacter.setDX(GameTimer.CHARACTER_SPEED);
+		
    	}
 	
 	//method that will stop the ship's movement; set the ship's DX and DY to 0
