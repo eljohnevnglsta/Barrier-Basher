@@ -94,7 +94,6 @@ public class GameTimer extends AnimationTimer{
 		this.drawTime();
 		
         if(this.gameCounter == 0) { // checks if game counter runs out
-        	this.stop();
         	this.stage.setupWin();
         }
 	}
@@ -119,7 +118,9 @@ public class GameTimer extends AnimationTimer{
 	        		this.myCharacter.setDY(0);
 	        		break;
 	        	}
-	        } 
+	        } else {
+	        	this.disableUP = false; 
+	        }
 	    }
 	}
 	
@@ -130,7 +131,7 @@ public class GameTimer extends AnimationTimer{
 		// To check the instance of time in seconds, currentTime is divided by 1,000,000,000 (1 billion), 1 nanosecond = 1^e-9 second
 		if (((currentTime-this.Time) / 1000000000.0) >= 1){ 
 			this.secondCounter++;
-			this.gameCounter = 20 - this.secondCounter; // 60 - running time
+			this.gameCounter = 60 - this.secondCounter; // 60 - running time
 			if (gameCounter <= 9) { // updates game counter text (single digit / double digit count)
 				this.gameCounterText = "0:0" + gameCounter; // single digit
 			} else {
@@ -257,6 +258,7 @@ public class GameTimer extends AnimationTimer{
 	    //Collections.shuffle(wallValuesBasis);
 	    
 	    if ((System.nanoTime() - this.startSpawnWalls) / 1000000000.0 > 5.0) {
+	    	this.walls.clear();
 		    this.walls.add(new Walls(0, -5, yPos, this.wallValuesBasis.get(0), this.theScene));
 		    this.walls.add(new Walls(1, 116, yPos, this.wallValuesBasis.get(1), this.theScene));
 		    this.walls.add(new Walls(2, 238, yPos, this.wallValuesBasis.get(2), this.theScene));

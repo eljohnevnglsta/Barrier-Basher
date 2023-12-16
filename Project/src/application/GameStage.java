@@ -1,10 +1,5 @@
 package application;
 
-import java.time.Duration;
-
-import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -40,9 +35,11 @@ public class GameStage {
 	private Media mediaMain = new Media(getClass().getResource("/music/bgm.mp3").toExternalForm());
 	private Media mediaGame = new Media(getClass().getResource("/music/gamemusic.mp3").toExternalForm());
 	private Media mediaOver = new Media(getClass().getResource("/music/gameover.mp3").toExternalForm());
+	private Media win = new Media(getClass().getResource("/images/win_vid.mp4").toExternalForm());
 	private MediaPlayer mediaPlayerMain;
 	private MediaPlayer mediaPlayerGame;
 	private MediaPlayer mediaPlayerOver;
+	private MediaPlayer mediaPlayerWin;
 	
 	public GameStage () {
 		this.root = new Group();
@@ -110,8 +107,10 @@ public class GameStage {
 		this.clearScene();
 		this.switchScene(this.winGIF);
 		
+		this.mediaPlayerWin = new MediaPlayer(this.win);
+		
 	    // Set up a listener to detect when the GIF has finished playing
-	    this.mediaPlayerOver.setOnEndOfMedia(() -> {
+	    this.mediaPlayerWin.setOnEndOfMedia(() -> {
 	        clearScene();
 	        switchScene(this.winIMG);
 	        this.root.getChildren().add(this.backFromGame);
@@ -120,15 +119,7 @@ public class GameStage {
 	    });
 
 	    // Play the media (GIF)
-	    this.mediaPlayerOver.play();
-	}
-	
-	private void showWinImage() {
-	    this.clearScene();
-	    this.switchScene(this.winIMG);
-	    this.root.getChildren().add(this.backFromGame);
-	    this.setupButton(this.backFromGame, 300, 100, 90, 515);
-	    this.root.getChildren().remove(this.back);
+	    this.mediaPlayerWin.play();
 	}
 	
 	public void mainMenu() {
