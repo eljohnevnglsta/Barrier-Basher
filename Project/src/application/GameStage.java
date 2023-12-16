@@ -1,5 +1,10 @@
 package application;
 
+import java.time.Duration;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -30,6 +35,8 @@ public class GameStage {
 	private Image mainMenu = new Image("file:src/images/menu.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image aboutDev = new Image("file:src/images/about.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Image howToPlay = new Image("file:src/images/how.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
+	private Image winGIF = new Image("file:src/images/win.gif",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
+	private Image winIMG = new Image("file:src/images/winImage.png",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
 	private Media mediaMain = new Media(getClass().getResource("/music/bgm.mp3").toExternalForm());
 	private Media mediaGame = new Media(getClass().getResource("/music/gamemusic.mp3").toExternalForm());
 	private Media mediaOver = new Media(getClass().getResource("/music/gameover.mp3").toExternalForm());
@@ -94,6 +101,34 @@ public class GameStage {
 		this.root.getChildren().add(this.backFromGame);
 		this.setupButton(this.backFromGame, 300, 100, 90, 515);
 		this.root.getChildren().remove(this.back);
+	}
+	
+	public void setupWin() {
+		this.musicOver();
+		this.mediaPlayerGame.stop();
+		this.gametimer.stop();
+		this.clearScene();
+		this.switchScene(this.winGIF);
+		
+	    // Set up a listener to detect when the GIF has finished playing
+	    this.mediaPlayerOver.setOnEndOfMedia(() -> {
+	        clearScene();
+	        switchScene(this.winIMG);
+	        this.root.getChildren().add(this.backFromGame);
+	        setupButton(this.backFromGame, 300, 100, 90, 515);
+	        this.root.getChildren().remove(this.back);
+	    });
+
+	    // Play the media (GIF)
+	    this.mediaPlayerOver.play();
+	}
+	
+	private void showWinImage() {
+	    this.clearScene();
+	    this.switchScene(this.winIMG);
+	    this.root.getChildren().add(this.backFromGame);
+	    this.setupButton(this.backFromGame, 300, 100, 90, 515);
+	    this.root.getChildren().remove(this.back);
 	}
 	
 	public void mainMenu() {

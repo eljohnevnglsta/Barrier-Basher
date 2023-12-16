@@ -39,7 +39,7 @@ public class GameTimer extends AnimationTimer{
 	private boolean disableUP = false;
 	public boolean isGameOver = false; 
 	
-	public final static int CHARACTER_SPEED = 4;
+	public final static int CHARACTER_SPEED = 6;
 	public final static int WALLS_INITIAL_YPOS = -100;
 	public final static int WIDTH_PER_WALLS = 125;
 	public final static double WALL_SPAWN_DELAY = 5;
@@ -79,7 +79,9 @@ public class GameTimer extends AnimationTimer{
 		seconds(currentNanoTime);
 		
 		this.gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
-		if (this.isGameOver) this.stage.setupGameOver();
+		if (this.isGameOver) {
+			this.stage.setupGameOver();
+		}
 		this.redrawBackgroundImage();
 		this.autoSpawnWalls(currentNanoTime);
 		this.autoSpawnItems(currentNanoTime);
@@ -93,7 +95,7 @@ public class GameTimer extends AnimationTimer{
 		
         if(this.gameCounter == 0) { // checks if game counter runs out
         	this.stop();
-        	stage.setupGameOver();
+        	this.stage.setupWin();
         }
 	}
 	
@@ -101,7 +103,10 @@ public class GameTimer extends AnimationTimer{
 	    for (Walls wall : walls) {
 	        if (myCharacter.collidesWith(wall)) {
 	        	if (wall.value > 0) {
-	        		if (this.myCharacter.strength < 0) this.isGameOver = true; 
+	        		if (this.myCharacter.strength < 0) {
+	        			this.isGameOver = true; 
+	        			break;
+	        		}
 		        	this.disableUP = true; 
 		        	this.myCharacter.setDY(GameTimer.BG_SPEED);
 	        		this.myCharacter.strength--; 
@@ -125,7 +130,7 @@ public class GameTimer extends AnimationTimer{
 		// To check the instance of time in seconds, currentTime is divided by 1,000,000,000 (1 billion), 1 nanosecond = 1^e-9 second
 		if (((currentTime-this.Time) / 1000000000.0) >= 1){ 
 			this.secondCounter++;
-			this.gameCounter = 60 - this.secondCounter; // 60 - running time
+			this.gameCounter = 20 - this.secondCounter; // 60 - running time
 			if (gameCounter <= 9) { // updates game counter text (single digit / double digit count)
 				this.gameCounterText = "0:0" + gameCounter; // single digit
 			} else {
@@ -135,7 +140,6 @@ public class GameTimer extends AnimationTimer{
 		}
 	}
 	
-	// Draw game stats including time, score, player's strength, and witch health
 	private void drawTime(){
 		this.gc.setFont(this.CUSTOM_FONT);
 		if (myCharacter.isAlive()) {
@@ -250,7 +254,7 @@ public class GameTimer extends AnimationTimer{
 	    this.wallValuesBasis.add(this.myCharacter.strength);
 	    this.wallValuesBasis.add(this.myCharacter.strength/2);
 	    
-	    Collections.shuffle(wallValuesBasis);
+	    //Collections.shuffle(wallValuesBasis);
 	    
 	    if ((System.nanoTime() - this.startSpawnWalls) / 1000000000.0 > 5.0) {
 		    this.walls.add(new Walls(0, -5, yPos, this.wallValuesBasis.get(0), this.theScene));
