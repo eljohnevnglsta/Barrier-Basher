@@ -3,7 +3,7 @@ package application;
 import javafx.scene.image.Image;
 
 public class Background extends Sprite {
-	public final static Image BG_IMAGE = new Image("file:src//images/bg.png",480,800,false,false);
+	public final static Image BG_IMAGE = new Image("file:src//images/background.png",480,800,false,false);
 	public boolean stopMoving = false;
 	private int initialY;
 	
