@@ -4,15 +4,20 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+// public class for the parent class Sprite
 public abstract class Sprite {
+	// attributes of the class
+	// image,  positions, visibility,  height, and width
 	protected Image img;
 	protected int x, y, dx, dy;
 	protected boolean visible;
 	protected double width;
 	protected double height;
 	
+	// constructor
 	public Sprite(int xPos, int yPos){
-		this.x = xPos;
+		// initializations
+		this.x = xPos; 
 		this.y = yPos;
 		this.setVisible(true);
 	}

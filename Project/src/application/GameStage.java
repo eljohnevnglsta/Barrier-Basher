@@ -13,9 +13,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class GameStage {
-	public static final int WINDOW_HEIGHT = 800;
-	public static final int WINDOW_WIDTH = 480;
+	//window dimensions
+	private static final int WINDOW_HEIGHT = 800;
+	private static final int WINDOW_WIDTH = 480;
 	
+	//main elements of the stage
 	private Scene scene;
 	private Stage stage;
 	private Group root;
@@ -23,19 +25,22 @@ public class GameStage {
 	private GraphicsContext gc;
 	private GameTimer gametimer;
 	
+	//buttons
 	private Button play;
 	private Button about;
 	private Button how;
 	private Button back;
 	private Button backFromGame; 
 	
-	private Image died = new Image("file:src/images/dead.gif",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
-	private Image stuck = new Image("file:src/images/stuck.gif",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
-	private Image mainMenu = new Image("file:src/images/main.gif",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
-	private Image aboutDev = new Image("file:src/images/about.gif",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
-	private Image howToPlay = new Image("file:src/images/how.gif",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
-	private Image finish = new Image("file:src/images/win.gif",GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,false,false);
+	//images
+	private Image died = new Image("file:src/images/dead.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
+	private Image stuck = new Image("file:src/images/stuck.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
+	private Image mainMenu = new Image("file:src/images/main.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
+	private Image aboutDev = new Image("file:src/images/about.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
+	private Image howToPlay = new Image("file:src/images/how.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
+	private Image finish = new Image("file:src/images/win.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
 	
+	//media files (sounds)
 	private Media mediaMain = new Media(getClass().getResource("/music/bgm.mp3").toExternalForm());
 	private Media mediaGame = new Media(getClass().getResource("/music/gamemusic.mp3").toExternalForm());
 	private Media mediaOver = new Media(getClass().getResource("/music/gameover.mp3").toExternalForm());
@@ -43,6 +48,7 @@ public class GameStage {
 	private Media mediaFinish = new Media(getClass().getResource("/music/finish.mp3").toExternalForm());
 	private Media mediaAbout = new Media(getClass().getResource("/music/yuyuyu.mp3").toExternalForm());
 	
+	//mediaPlayers (for sounds)
 	private MediaPlayer mediaPlayerMain;
 	private MediaPlayer mediaPlayerGame;
 	private MediaPlayer mediaPlayerOver;
@@ -50,13 +56,17 @@ public class GameStage {
 	private MediaPlayer mediaPlayerFinish;
 	private MediaPlayer mediaPlayerAbout;
 	
+	//checker if a sound is playing, before switching to about scene
+	private boolean isPlaying;
+	
 	public GameStage () {
+		//stage main elements
 		this.root = new Group();
-		this.canvas = new Canvas(GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);	
+		this.canvas = new Canvas(GameStage.getWindowWidth(),GameStage.getWindowHeight());	
 		this.gc = canvas.getGraphicsContext2D();
 		
-		//Scenes
-		this.scene = new Scene(root, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT,Color.CADETBLUE);
+		//scenes
+		this.scene = new Scene(root, GameStage.getWindowWidth(),GameStage.getWindowHeight(),Color.CADETBLUE);
 		
 		//buttons
 		this.play = new Button();
@@ -65,9 +75,11 @@ public class GameStage {
 		this.backFromGame = new Button(); 
 		this.back = new Button();
 		
+		//setups the main menu music
 		this.musicMain();
 	}
 	
+	//functions that sets up the invisible buttons
 	private void setupButton(Button button, int sX, int sY, int pX, int pY) {
 		button.setPrefSize(sX, sY);
 		button.setLayoutX(pX);
@@ -75,92 +87,115 @@ public class GameStage {
 		button.setOpacity(0); 
 	}
 	
+	//setups the main menu scene
 	private void setupMain() {
+		//adds the images and buttons
 		this.root.getChildren().add(new ImageView(mainMenu)); 
 		this.root.getChildren().add(this.play);
 		this.root.getChildren().add(this.about);
 		this.root.getChildren().add(this.how);
 		
+		//setups the invisible buttons
 		setupButton(this.play, 300, 100, 90, 515);
 		setupButton(this.about, 201, 70, 27, 631);
 		setupButton(this.how, 201, 70, 245, 631);
 		setupButton(this.back, 97, 29, 11, 10);
 	}
 	
+	//stage setup
 	public void setStage(Stage stage) {
+		//initializes the stage
 		this.stage = stage;
 		
-		//set stage elements here	     
+		//stage elements initializations	     
 		this.root.getChildren().add(canvas);
 		this.stage.setTitle("Barrier Basher");	
 		this.stage.setScene(this.scene);
+		this.stage.setResizable(false);
 		
+		//calls the main menu scene
 		this.setupMain();
+		//calls the main menu logic
 		this.mainMenu();
 	}
 	
+	//game over scene
 	public void setupGameOver(int type) {
-		this.musicOver();
-		this.mediaPlayerGame.stop();
-		this.gametimer.stop();
-		this.clearScene();
+		this.musicOver(); //starts game over sound
+		this.mediaPlayerGame.stop(); //stops the game music
+		this.gametimer.stop(); //stops the game timer
+		this.clearScene(); //clears the scene
 		
-		switch (type) {
+		switch (type) { //showcases the corresponding type based on type of death
 			case 0: this.switchScene(this.died); break; // bombed
 			default: this.switchScene(this.stuck); // got stuck
 		}
 		
+		//adds and removes buttons accordingly
 		this.root.getChildren().add(this.backFromGame);
 		this.setupButton(this.backFromGame, 300, 100, 90, 515);
 		this.root.getChildren().remove(this.back);
 	}
 	
+	//winning scene
 	public void setupFinish() {
-		this.musicFinish();
-		this.mediaPlayerGame.stop();
-		this.gametimer.stop();
-		this.clearScene();
-		this.switchScene(this.finish);
-		this.root.getChildren().add(this.backFromGame);
+		this.musicFinish(); //starts music
+		this.mediaPlayerGame.stop(); //stops game music
+		this.gametimer.stop(); //stops the game timer
+		this.clearScene(); //clears the current scene 
+		this.switchScene(this.finish);	//shows finish line scene
+		
+		//adds and removes buttons accordingly
+		this.root.getChildren().add(this.backFromGame); 
 		this.setupButton(this.backFromGame, 300, 100, 90, 515);
 		this.root.getChildren().remove(this.back);
 	}
 	
+	//main menu logic
 	public void mainMenu() {
+		//presents the current stage
 		this.stage.show();
+		
+		//if play is pressed
 		this.play.setOnMouseClicked(event -> {
-			this.clickButton();
-			this.clearScene();
-			this.gametimer = new GameTimer(this,this.gc,this.scene);
-			this.musicGame();
-			this.mediaPlayerMain.stop();
-			this.gametimer.start();
+			this.clickingSound(); //shows the clicking sound
+			this.clearScene(); //clears current scene
+			this.gametimer = new GameTimer(this,this.gc,this.scene); //creates a new game timer
+			this.musicGame(); //sets up music
+			this.mediaPlayerMain.pause(); //pauses the main menu sound
+			this.gametimer.start(); //starts the game
 		});
 		this.about.setOnMouseClicked(event -> {
-			this.clickButton();
-			this.musicAbout();
-			this.mediaPlayerMain.stop();
-			this.switchScene(this.aboutDev);
+			this.clickingSound(); 
+			this.musicAbout(); //about music call
+			this.mediaPlayerMain.pause(); // pauses main music
+			this.switchScene(this.aboutDev); //switches scene to about the devs
 		});
 		this.how.setOnMouseClicked(event -> {
-			this.clickButton();
-			this.switchScene(this.howToPlay);
+			this.clickingSound(); 
+			this.switchScene(this.howToPlay); //switches scene to instructions
 		});
-		this.back.setOnMouseClicked(event -> {
-			this.clickButton();
+		this.back.setOnMouseClicked(event -> { //switches back to the main menu
+			this.clickingSound();
 			this.clearScene();
 			this.setupMain();
 			this.mediaPlayerMain.play();
-			this.mediaPlayerAbout.stop();
+			if (this.isPlaying) { //if from about, stops the sound from about
+				this.mediaPlayerAbout.stop();
+			}
+			
 		});
-		this.backFromGame.setOnMouseClicked(event -> {
-			this.clickButton();
+		this.backFromGame.setOnMouseClicked(event -> { //back button for game over and winning scene
+			this.clickingSound(); //also returns to the main menu
 			this.clearScene();
 			this.setupMain();
 			this.mediaPlayerMain.play();
 		});
 	}
 	
+	
+	//MUSIC / SOUND EFFECTS METHODS
+	//initializations and setup
 	void musicMain() {
 	    this.mediaPlayerMain = new MediaPlayer(this.mediaMain);
 	    this.mediaPlayerMain.setVolume(0.70);
@@ -192,25 +227,34 @@ public class GameStage {
 	    this.mediaPlayerAbout.setVolume(0.65);
         this.mediaPlayerAbout.setCycleCount(MediaPlayer.INDEFINITE); // Play the music indefinitely
         this.mediaPlayerAbout.play();
+        this.isPlaying = true;
 	}
 	
-	void clickButton() {
+	void clickingSound() {
 	    this.mediaPlayerButton = new MediaPlayer(this.mediaButton);
 	    this.mediaPlayerButton.setVolume(0.20);
         this.mediaPlayerButton.play();
 	}
 	
 	private void clearScene() {
-	    // Clear the root group
+	    //clear the root group
 	    this.root.getChildren().clear();
 	    
-	    // Add the canvas back to the root
+	    //add the canvas back to the root
 	    this.root.getChildren().add(canvas);
 	}
 	
 	private void switchScene(Image image) {
-		gc.clearRect(0, 0, GameStage.WINDOW_WIDTH,GameStage.WINDOW_HEIGHT);
-		this.root.getChildren().add(new ImageView(image));
-		this.root.getChildren().add(this.back);
+		gc.clearRect(0, 0, GameStage.getWindowWidth(),GameStage.getWindowHeight()); //clears the canvas
+		this.root.getChildren().add(new ImageView(image)); //adds the image view to the scene
+		this.root.getChildren().add(this.back); //adds an invisible back button
+	}
+
+	public static int getWindowHeight() {
+		return WINDOW_HEIGHT;
+	}
+
+	public static int getWindowWidth() {
+		return WINDOW_WIDTH;
 	}
 }
