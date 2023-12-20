@@ -5,10 +5,7 @@ import java.util.Collections;
 import java.util.Random;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.event.EventHandler;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -16,8 +13,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 // public class for GAmeTimer that extends the AnimationTImer
 public class GameTimer extends AnimationTimer{
@@ -52,11 +47,11 @@ public class GameTimer extends AnimationTimer{
 	private boolean disableKey = false;
 	
 	// final (static) attributes to be used throughout the code
-	private static int CHARACTER_SPEED = 3;
+	private static int CHARACTER_SPEED;
 	private final static int BG_SPEED = 3; 
 	
 	private final static double WALL_SPAWN_DELAY = 5;
-	private static double ITEM_SPAWN_DELAY = 1.25;
+	private static double ITEM_SPAWN_DELAY;
 	
 	private final static int WALLS_INITIAL_YPOS = -100;
 	private final static int POINTS_INITIAL_YPOS = 0;
@@ -74,6 +69,8 @@ public class GameTimer extends AnimationTimer{
 		this.stage = stage; 
 		this.gc = gc;
 		this.theScene = theScene;
+		GameTimer.CHARACTER_SPEED = 3;
+		GameTimer.ITEM_SPAWN_DELAY = 1.25;
 		
 		this.startSpawnWalls = System.nanoTime();
 		this.startSpawnItems = System.nanoTime();
@@ -91,7 +88,7 @@ public class GameTimer extends AnimationTimer{
 		//call method to handle mouse click event
 		this.handleKeyPressEvent();
 		
-		// sets the background
+		// sets the background movement
 		this.setBG();
 		
 	}
@@ -188,7 +185,7 @@ public class GameTimer extends AnimationTimer{
 		// if the character is alive, it sets the text of the timer
 		if (myCharacter.isAlive()) {
 			this.gc.fillText("Time: " + gameCounterText, 20, 40);
-			this.gc.setFill(Color.BLACK);
+			this.gc.setFill(Color.rgb(48, 42, 32));
 		}
 	}
 	

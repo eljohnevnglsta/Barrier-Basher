@@ -31,6 +31,7 @@ public class GameStage {
 	private Button how;
 	private Button back;
 	private Button backFromGame; 
+	private Button references;
 	
 	//images
 	private Image died = new Image("file:src/images/dead.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
@@ -39,6 +40,7 @@ public class GameStage {
 	private Image aboutDev = new Image("file:src/images/about.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
 	private Image howToPlay = new Image("file:src/images/how.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
 	private Image finish = new Image("file:src/images/win.gif",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
+	private Image refs = new Image("file:src/images/refs.png",GameStage.getWindowWidth(),GameStage.getWindowHeight(),false,false);
 	
 	//media files (sounds)
 	private Media mediaMain = new Media(getClass().getResource("/music/bgm.mp3").toExternalForm());
@@ -74,6 +76,7 @@ public class GameStage {
 		this.how = new Button();
 		this.backFromGame = new Button(); 
 		this.back = new Button();
+		this.references = new Button();
 		
 		//setups the main menu music
 		this.musicMain();
@@ -94,8 +97,10 @@ public class GameStage {
 		this.root.getChildren().add(this.play);
 		this.root.getChildren().add(this.about);
 		this.root.getChildren().add(this.how);
+		this.root.getChildren().add(this.references);
 		
 		//setups the invisible buttons
+		setupButton(this.references, 97, 29, 11, 10);
 		setupButton(this.play, 300, 100, 90, 515);
 		setupButton(this.about, 201, 70, 27, 631);
 		setupButton(this.how, 201, 70, 245, 631);
@@ -190,6 +195,11 @@ public class GameStage {
 			this.clearScene();
 			this.setupMain();
 			this.mediaPlayerMain.play();
+		});
+		this.references.setOnMouseClicked(event -> { //references button
+			this.clickingSound(); //switches and shows refs scene
+			this.clearScene();
+			this.switchScene(this.refs);
 		});
 	}
 	
